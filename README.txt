@@ -1,4 +1,4 @@
-#A Simple telegram bot with python,flask
+#A Simple telegram bot with python
 #Created by ME!   :)
 
 #What does this robot do?
