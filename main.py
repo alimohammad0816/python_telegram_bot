@@ -3,20 +3,11 @@ import requests
 TOKEN = '1330763196:AAEPyj60bkRiYCkEDHdL1LXCMCTkiwibh08'
 telegram_api = f"https://api.telegram.org/bot{TOKEN}/"
 
-#برای تمام مراحل باید کاربر احراز وضعیت شود تا نسبت به وضعیت ورودی پردازش شود.
-
-# ثبتنام ، آپدیت اکانت ، دلیت اکانت
-# def name(input):
-#     pass
-
-# نمایش محصولات ، افزودن محصول به سبدخرید ، نمایش و مدیریت سبد خرید
-# def name(input):
-#     pass
-
-# ثبت سفارش و پرداخت نهایی
-# def name(input):
-#     pass
-
+# برای تمام مراحل باید کاربر احراز وضعیت شود تا نسبت به وضعیت ورودی پردازش شود.
+user_state = {
+    # unique_username : state
+}
+# simple database (in this app)
 users = {
     # example user
     # 'alireza': {
@@ -37,6 +28,21 @@ products = {
     '6': {"name": "car", "price": 6000},
     '7': {"name": "keyboard", "price": 7000}
 }
+
+
+# ثبتنام ، آپدیت اکانت ، دلیت اکانت
+def account(request):
+    pass
+
+
+# نمایش محصولات ، افزودن محصول به سبدخرید ، نمایش و مدیریت سبد خرید
+def product_managing(request):
+    pass
+
+
+# ثبت سفارش و پرداخت نهایی
+def payment(request):
+    pass
 
 
 def telegram_bot_future():
