@@ -3,11 +3,7 @@ import requests
 TOKEN = '1330763196:AAEPyj60bkRiYCkEDHdL1LXCMCTkiwibh08'
 telegram_api = f"https://api.telegram.org/bot{TOKEN}/"
 
-# برای تمام مراحل باید کاربر احراز وضعیت شود تا نسبت به وضعیت ورودی پردازش شود.
-user_state = {
-    # unique_username : state
-}
-# simple database (in this app)
+# users data
 users = {
     # example user
     # 'alireza': {
@@ -23,16 +19,58 @@ products = {
     '1': {"name": "book", "price": 1000},
     '2': {"name": "laptop", "price": 2000},
     '3': {"name": "ps5", "price": 3000},
-    '4': {"name": "xbox series x", "price":4000},
+    '4': {"name": "xbox series x", "price": 4000},
     '5': {"name": "pc", "price": 5000},
     '6': {"name": "car", "price": 6000},
     '7': {"name": "keyboard", "price": 7000}
 }
 
+# برای هر کاربری که ثبتنام کرده ، یک وضعیت ثبت میشه که با توجه به اون داده ورودی برسی میشه.
+user_state = {
+    # username = state
+}
+
 
 # ثبتنام ، آپدیت اکانت ، دلیت اکانت
-def account(request):
-    pass
+def account(req, url):
+    message = req["message"]["text"]
+    # user info
+    username = req['message']["from"]['username']
+    username = f"@{username}"
+    user_id = req['message']["from"]['id']
+    first_name = req['message']["from"]['first_name']
+    try:
+        last_name = req['message']["from"]['last_name']
+    except KeyError:
+        last_name = "نامشخص"
+    if message.lower() == "/signup":
+        global users
+        if username not in users:
+            simple = {
+                username: {
+                    "username": username,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "user_id": user_id,
+                    "card": []
+                }
+            }
+            users.update(simple)
+    elif message.lower() == '/update':
+        if username in users:
+            simple = {
+                username: {
+                    "username": username,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "user_id": user_id,
+                    "card": []
+                }
+            }
+            users.update(simple)
+    elif message.lower() == '/delete':
+        if username in users:
+            users.pop(username)
 
 
 # نمایش محصولات ، افزودن محصول به سبدخرید ، نمایش و مدیریت سبد خرید
@@ -42,6 +80,11 @@ def product_managing(request):
 
 # ثبت سفارش و پرداخت نهایی
 def payment(request):
+    pass
+
+
+# get request for new messages
+def get_update(url):
     pass
 
 
@@ -124,7 +167,7 @@ def telegram_bot_future():
                     product = products[i]['name']
                     text = f"نام محصول {product} آیدی محصول {product_id}"
                     requests.post(f"{telegram_api}sendMessage?chat_id={user_id}&text={text}")
-                
+
                 text = 'برای افزودن محصول به سبد خرید /additem محصول را وارد کنید.'
             elif new_req_text == '/additem':
                 text = 'برای افزودن محصول به سبد خرید /id محصول را وارد کنید.'
@@ -180,7 +223,6 @@ def telegram_bot_future():
                     for i in users[username]["card"]:
                         # print(i)
                         if product_name == i['name']:
-                            
                             text = f'{i["name"]}با موفقیت حذف شد'
                             requests.post(f"{telegram_api}sendMessage?chat_id={user_id}&text={text}")
                             break
