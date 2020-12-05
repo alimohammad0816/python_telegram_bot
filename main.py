@@ -160,10 +160,18 @@ def check_user_in(username):
         return False
 
 
-async def main(url):
-        req = 0
+loop = asyncio.get_event_loop()
+
+
+async def reqer(url):
+    while True:
         async with aiohttp.ClientSession() as session:
-            req = await get_update(session, url)
+            return await get_update(session, url)
+
+
+async def main(url):
+        req = await reqer(url)
+        loop.create_task(main(url))
         username = req['message']["from"]['username']
         user_id = req['message']['from']['id']
         client_message = req["message"]["text"]
@@ -175,7 +183,9 @@ async def main(url):
             text = 'به ربات خوش آمدید برای استفاده از امکانات ربات ابتدا ثبتنام کنید.\n'
             text += 'برای ثبتنام از دستور /signup استفاده کنید.\n'
             text += 'در صورت عدم ثبتنام امکانات ربات برای شما فعال نخواهد شد.'
-            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+            # requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+            async with aiohttp.ClientSession() as session:
+                await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
         elif check_user_in(username):
             if client_message == '/updateaccount':
                 update(req, url)
@@ -276,10 +286,8 @@ async def main(url):
                     text = 'شماره کارت اشتباه است، دوباره وارد کنید.'
                     requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
 
-
+loop.create_task(main(url))
 if __name__ == '__main__':
     print("app is running now...")
-    while True:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(main(url))
+    loop.run_forever()
 
