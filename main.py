@@ -11,7 +11,8 @@ users = {
     #     "first_name": "ali",
     #     "last_name": "reza",
     #     "user_id": 123456,
-    #     "card": []
+    #     "card": [],
+    #     "state": some sate
     # }
 }
 
@@ -23,11 +24,6 @@ products = {
     '5': {"name": "pc", "price": 5000},
     '6': {"name": "car", "price": 6000},
     '7': {"name": "keyboard", "price": 7000}
-}
-
-# برای هر کاربری که ثبتنام کرده ، یک وضعیت ثبت میشه که با توجه به اون داده ورودی برسی میشه.
-user_state = {
-    # username = state
 }
 
 
@@ -44,152 +40,239 @@ def get_update(url):
 
 
 # Signup, Update, Delete Account with Confirm.
-def account(req, url):
-    global user_state
+def signup(req, url):
     global users
-    client_message = req["message"]["text"]
     username = req['message']["from"]['username']
-    username = f"{username}"
     user_id = req['message']["from"]['id']
     first_name = req['message']["from"]['first_name']
     try:
         last_name = req['message']["from"]['last_name']
     except KeyError:
         last_name = "نامشخص"
-    if client_message.lower() == "/signup":
-        if username not in users:
-            simple = {
-                username: {
-                    "username": username,
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "user_id": user_id,
-                    "card": []
-                }
+    if username not in users:
+        simple = {
+            username: {
+                "username": username,
+                "first_name": first_name,
+                "last_name": last_name,
+                "user_id": user_id,
+                "card": {},
+                "state": ""
             }
-            users.update(simple)
-            text = "ثبتنام شما با موفقیت انجام شد."
-            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-        else:
-            text = "شما قبلا ثبتنام کرده اید."
-            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-    elif client_message.lower() == '/updateaccount':
-        if username in users:
-            simple = {
-                username: {
-                    "username": username,
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "user_id": user_id,
-                    "card": []
-                }
-            }
-            users.update(simple)
-            text = "پروفایل شما با موفقیت آپدیت شد."
-            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-        else:
-            text = "شما قبلا ثبتنام نکرده اید."
-            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-    elif client_message.lower() == '/deleteaccount':
-        if username in users:
-            user_state[username] = "waitforconfirm"
-            text = "آیا از حذف پروفایل خود اطمینان دارید؟برای تایید بله ،و در صورت انصراف خیر را ارسال کنید."
-            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-    elif username in users:
-        if username in user_state:
-            if user_state[username] == 'waitforconfirm':
-                if client_message == 'بله':
-                    users.pop(username)
-                    text = "پروفایل شما با موفقیت حذف شد."
-                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-                elif client_message == 'خیر':
-                    user_state[username] = ''
-                    text = "شما از حذف پروفایل خود انصراف دادید."
-                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-                else:
-                    text = "دستور وارد شده صحیح نمیباشد، لطفا دوباره امتحان کنید."
-                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        }
+        users.update(simple)
 
 
-# نمایش محصولات ، افزودن محصول به سبدخرید ، نمایش و مدیریت سبد خرید
-def product_managing(req, url):
-    global user_state
+def update(req, url):
     global users
-    client_message = req["message"]["text"]
-    username = f"{req['message']['from']['username']}"
+    username = req['message']["from"]['username']
     user_id = req['message']["from"]['id']
-    if username in users:
-        if client_message.lower() == '/products':
-            text = "محصولات ما : \n"
-            for i in products:
-                text += f"{products[i]['name']}, \n"
-            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-        elif client_message.lower() == '/mycard':
-            user_card = users[username]['card']
-            if user_card == []:
-                text = "سبد خرید شما خالی است."
-                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-            if not user_card == []:
-                text = "سبد خرید شما : \n"
-                for i in user_card:
-                    text += f"{i['name']}, \n"
-                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-        elif client_message.lower() == '/additem':
-            user_state[username] = 'additem'
-            text = 'شما در بخش خرید هستید ، برای افزودن محصولات آیدی محصول مورد نظر را وارد کنید.'
-            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-        elif username in user_state:
-            print(user_state[username])
-            if user_state[username] == 'additem':
-                if client_message == 'خروج':
-                    text = "به بخش محصولات برگشتید."
-                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-                    user_state[username] = 'product_mode'
-                    print(user_state[username])
-                else:
-                    item = products[client_message]
-                    users[username]['card'].append(item)
-                    text = f"محصول {item['name']} اضافه شد.\n"
-                    text += "برای افزودن محصول جدید ،آیدی آن را وارد کنید.\n"
-                    text += "برای خروج از این بخش ، کلمه خروج را ارسال کنید."
-                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+    first_name = req['message']["from"]['first_name']
+    try:
+        last_name = req['message']["from"]['last_name']
+    except KeyError:
+        last_name = "نامشخص"
+    simple = {
+        username: {
+            "username": username,
+            "first_name": first_name,
+            "last_name": last_name,
+            "user_id": user_id,
+            "card": {},
+            "state": ""
+        }
+    }
+    users.update(simple)
+
+
+def delete_account(req, url):
+    global users
+    username = req['message']["from"]['username']
+    users.pop(username)
+
+
+def get_products(products):
+    text = 'محصولات ما: \n'
+    for i in products:
+        text += f"نام محصول :{products[i]['name']}   ,  کدمحصول :{i}\n"
+    return text
+
+
+def get_card(username):
+    global users
+    user_card = users[username]['card']
+    text = 'سبد خرید شما :\n'
+    if not user_card == {}:
+        for i in user_card:
+            text += f"نام محصول :{user_card[i]['name']}   ,  کدمحصول :{i}\n"
     else:
-        text = "برای استفاده از امکانات این برنامه ابتدا ثبتنام کنید. برای ثبتنام از دستور /signup استفاده کنید."
-        requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        text = 'سبد خرید شما خالی است.'
+    return text
 
 
-# ثبت سفارش و پرداخت نهایی
-def payment(req, url):
-    pass
+def add_item(username, message):
+    global products
+    global users
+    try:
+        item = {message: products[message]}
+        users[username]['card'].update(item)
+        return item[message]
+    except KeyError:
+        return False
 
 
-def executing():
+def remove_item(username, message):
+    global users
+    try:
+        item = {message: products[message]}
+        users[username]['card'].pop(message)
+        return item[message]
+    except KeyError:
+        return False
+
+
+# محاسبه قیمت نهایی
+def calc_price(username):
+    card = users[username]['card']
+    price_sum = 0
+    for i in card:
+        price_sum += card[i]['price']
+    return price_sum
+
+
+# پرداخت
+def payment(card_number):
+    if card_number.isalnum() and len(card_number) == 16:
+        return True
+    else:
+        return False
+
+
+def check_user_in(username):
+    if username in users:
+        return True
+    else:
+        return False
+
+
+def bot():
     global url
-    global user_state
     req = get_update(url)
     username = req['message']["from"]['username']
     user_id = req['message']['from']['id']
     client_message = req["message"]["text"]
-    if client_message.lower() == '/product':
-        text = "شما وارد بخش محصولات شدید.برای خارج شدن ، کلمه خروج را وارد کنید."
+
+    if client_message == '/signup':
+        signup(req, url)
+        text = "ثبتنام شما با موفقیت انجام شد."
         requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-        user_state[username] = 'product_mode'
-    if username in user_state:
-        if user_state[username] == 'product_mode':
-            if client_message.lower() == 'خروج':
-                text = "شما به صفحه اصلی بازگشتید."
+    if not check_user_in(username):
+        text = 'به ربات خوش آمدید برای استفاده از امکانات ربات ابتدا ثبتنام کنید.\n'
+        text += 'برای ثبتنام از دستور /signup استفاده کنید.\n'
+        text += 'در صورت عدم ثبتنام امکانات ربات برای شما فعال نخواهد شد.'
+        requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+    elif check_user_in(username):
+        if client_message == '/updateaccount':
+            update(req, url)
+            text = "پروفایل شما با موفقیت بروزرسانی شد."
+            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        elif client_message == '/deleteaccount':
+            users[username]['state'] = 'waitfordeleteaccount'
+            text = 'آیا از حذف پروفایل خود اطمینان دارید؟'
+            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        elif client_message == '/products':
+            text = get_products(products)
+            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        elif client_message == '/mycard':
+            text = get_card(username)
+            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        elif client_message == '/additem':
+            users[username]['state'] = 'addingitem'
+            text = 'شما در بخش افزودن محصول هستید،برای افزودن محصول کد آن را وارد کنید.'
+            text += 'برای خارج شدن از این بخش، کلمه خروج را ارسال کنید.'
+            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        elif client_message == '/removeitem':
+            users[username]['state'] = 'removingitem'
+            text = 'شما در بخش حذف محصول هستید،برای حذف محصول کد آن را وارد کنید.'
+            text += 'برای خارج شدن از این بخش، کلمه خروج را ارسال کنید.'
+            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        elif client_message == '/payment':
+            users[username]['state'] = 'confirmingpayment'
+            text = 'آیا از نهایی کردن سبد خرید خود، اطمینان دارید؟'
+            text += 'برای تایید بله و برای انصراف خیر را وارد کنید.'
+            requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        # -------------from here Check states and proccess
+        state = users[username]['state']
+        if state == 'waitfordeleteaccount':
+            if client_message == 'بله':
+                delete_account(req, url)
+                text = 'حساب شما با موفقیت پاک شد.'
                 requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
-                user_state[username] = ''
-    account(req=req, url=url)
-    if username in user_state:
-        if user_state[username] == 'product_mode':
-            product_managing(req=req, url=url)
+            elif client_message == 'خیر':
+                text = 'شما از حذف اکانت انصراف دادید.'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                users[username]['state'] = ''
+        elif state == 'addingitem':
+            item = add_item(username, client_message)
+            if client_message == 'خروج':
+                text = 'شما از بخش افزودن محصول، خارج شدید.'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                users[username]['state'] = ''
+            elif not client_message == '/additem':
+                if item:
+                    text = f"محصول {item['name']} اضافه شد.\n"
+                    text += 'برای افزودن محصول دیگر کد دیگری وارد کنید یا برای خارج شدن ،خروج را ارسال کنید.'
+                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                elif not item:
+                    text = 'ورودی صحیح نیست، دوباره امتحان کنید.'
+                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        elif state == 'removingitem':
+            item = remove_item(username, client_message)
+            if client_message == 'خروج':
+                text = 'شما از بخش افزودن محصول، خارج شدید.'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                users[username]['state'] = ''
+            elif not client_message == '/removeitem':
+                if item:
+                    text = f"محصول {item['name']} حذف شد.\n"
+                    text += 'برای حذف محصول دیگر کد دیگری وارد کنید یا برای خارج شدن ،خروج را ارسال کنید.'
+                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                elif not item:
+                    text = 'ورودی صحیح نیست، دوباره امتحان کنید.'
+                    requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+        elif state == 'confirmingpayment':
+            if client_message == 'بله':
+                text = 'سبد خرید ثبت شد.\n'
+                price = calc_price(username)
+                text += f'your payment : {price}\n'
+                text += 'آیا ادامه می دهید؟'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                users[username]['state'] = 'nextlevelforpayment'
+            elif client_message == 'خیر':
+                text = 'شما از نهایی کردن سبد خرید ، خارج شدید.'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                users[username]['state'] = ''
+        elif state == 'nextlevelforpayment':
+            if client_message == 'بله':
+                text = 'شماره کارت خود را بدون فاصله ارسال کنید.'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                users[username]['state'] = 'finalpayment'
+            elif client_message == 'خیر':
+                text = 'شما از پرداخت سبد خرید ، خارج شدید.'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                users[username]['state'] = ''
+        elif state == 'finalpayment':
+            pay = payment(client_message)
+            if pay:
+                text = 'خرید شما با موفقیت انجام شد.'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
+                users[username]['state'] = ''
+            if not pay:
+                text = 'شماره کارت اشتباه است، دوباره وارد کنید.'
+                requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
 
 
 if __name__ == "__main__":
     print("app is Running now...")
     while True:
-        print(user_state)
-        executing()
-
-
+        bot()
