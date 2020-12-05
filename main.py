@@ -184,7 +184,6 @@ async def main(url):
             text = 'به ربات خوش آمدید برای استفاده از امکانات ربات ابتدا ثبتنام کنید.\n'
             text += 'برای ثبتنام از دستور /signup استفاده کنید.\n'
             text += 'در صورت عدم ثبتنام امکانات ربات برای شما فعال نخواهد شد.'
-            # requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
             async with aiohttp.ClientSession() as session:
                 await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
         elif check_user_in(username):
