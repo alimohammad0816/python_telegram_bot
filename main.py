@@ -1,21 +1,7 @@
 import asyncio
 import requests
 import aiohttp
-TOKEN = '1330763196:AAH3HHUfzfU4MSufuSWnbEZIQiQ--jy0Oug'
-url = f"https://api.telegram.org/bot{TOKEN}/"
 
-# users data
-users = {
-    # example user
-    # 'alireza': {
-    #     "username": "alireza",
-    #     "first_name": "ali",
-    #     "last_name": "reza",
-    #     "user_id": 123456,
-    #     "card": [],
-    #     "state": some sate
-    # }
-}
 
 products = {
     '1': {"name": "book", "price": 1000},
@@ -43,52 +29,6 @@ async def get_update(session, url):
         req = req["result"][-1]
         if not offset == req['update_id']:
             return req
-
-
-# Signup, Update, Delete Account with Confirm.
-def signup(req, url):
-    global users
-    username = req['message']["from"]['username']
-    user_id = req['message']["from"]['id']
-    first_name = req['message']["from"]['first_name']
-    try:
-        last_name = req['message']["from"]['last_name']
-    except KeyError:
-        last_name = "نامشخص"
-    if username not in users:
-        simple = {
-            username: {
-                "username": username,
-                "first_name": first_name,
-                "last_name": last_name,
-                "user_id": user_id,
-                "card": {},
-                "state": ""
-            }
-        }
-        users.update(simple)
-
-
-def update(req, url):
-    global users
-    username = req['message']["from"]['username']
-    user_id = req['message']["from"]['id']
-    first_name = req['message']["from"]['first_name']
-    try:
-        last_name = req['message']["from"]['last_name']
-    except KeyError:
-        last_name = "نامشخص"
-    simple = {
-        username: {
-            "username": username,
-            "first_name": first_name,
-            "last_name": last_name,
-            "user_id": user_id,
-            "card": {},
-            "state": ""
-        }
-    }
-    users.update(simple)
 
 
 def delete_account(req, url):
@@ -308,10 +248,81 @@ async def main(url):
                     async with aiohttp.ClientSession() as session:
                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
 
-loop.create_task(main(url))
-if __name__ == '__main__':
-    print("app is running now...")
-    loop.run_forever()
+
+# loop.create_task(main(url))
+# if __name__ == '__main__':
+#     print("app is running now...")
+#     loop.run_forever()
+
+
+class Bot:
+    TOKEN = '1330763196:AAH3HHUfzfU4MSufuSWnbEZIQiQ--jy0Oug'
+    url = f"https://api.telegram.org/bot{TOKEN}/"
+    users = {
+        # example user
+        # 'user_id': {
+        #     "username": "alireza",
+        #     "first_name": "ali",
+        #     "last_name": "reza",
+        #     "user_id": 123456,
+        #     "card": [],
+        #     "state": some sate
+        # }
+    }
+
+    def __init__(self, message, user_id, username, first_name, last_name):
+        self.message = message
+        self.user_id = user_id
+        self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
+
+    @classmethod
+    def collector(cls, req):
+        message = req['message']['text']
+        username = req['message']["from"]['username']
+        user_id = req['message']["from"]['id']
+        first_name = req['message']["from"]['first_name']
+        first_name = req['message']["from"]['first_name']
+        try:
+            last_name = req['message']["from"]['last_name']
+        except KeyError:
+            last_name = "نامشخص"
+        return cls(message, user_id, username, first_name, last_name)
+
+    def signup(self):
+        if self.username not in users:
+            simple = {
+                self.user_id: {
+                    "username": self.username,
+                    "first_name": self.first_name,
+                    "last_name": self.last_name,
+                    "user_id": self.user_id,
+                    "card": {},
+                    "state": ""
+                }
+            }
+            return users.update(simple)
+
+    def update(self):
+        if self.username in users:
+            simple = {
+                self.user_id: {
+                    "username": self.username,
+                    "first_name": self.first_name,
+                    "last_name": self.last_name,
+                    "user_id": self.user_id,
+                    "card": {},
+                    "state": ""
+                }
+            }
+            return users.update(simple)
+
+    def delete_account(self):
+        if self.username in users:
+            return users.pop(self.user_id)
+
+
 
 
 
