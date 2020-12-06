@@ -1,107 +1,6 @@
 import asyncio
-import requests
 import aiohttp
 
-# async def main(url):
-#         req = await reqer(url)
-#         loop.create_task(main(url))
-#         username = req['message']["from"]['username']
-#         user_id = req['message']['from']['id']
-#         client_message = req["message"]["text"]
-#         if client_message == '/signup':
-#             signup(req, url)
-#             text = "ثبتنام شما با موفقیت انجام شد."
-#             async with aiohttp.ClientSession() as session:
-#                 await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#         if not check_user_in(username):
-#             text = 'به ربات خوش آمدید برای استفاده از امکانات ربات ابتدا ثبتنام کنید.\n'
-#             text += 'برای ثبتنام از دستور /signup استفاده کنید.\n'
-#             text += 'در صورت عدم ثبتنام امکانات ربات برای شما فعال نخواهد شد.'
-#             async with aiohttp.ClientSession() as session:
-#                 await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#         elif check_user_in(username):
-#             if client_message == '/updateaccount':
-#                 update(req, url)
-#                 text = "پروفایل شما با موفقیت بروزرسانی شد."
-#                 async with aiohttp.ClientSession() as session:
-#                     await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#             elif client_message == '/deleteaccount':
-#                 users[username]['state'] = 'waitfordeleteaccount'
-#                 text = 'آیا از حذف پروفایل خود اطمینان دارید؟'
-#                 async with aiohttp.ClientSession() as session:
-#                     await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#             elif client_message == '/products':
-#                 text = get_products(products)
-#                 async with aiohttp.ClientSession() as session:
-#                     await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#             elif client_message == '/mycard':
-#                 text = get_card(username)
-#                 async with aiohttp.ClientSession() as session:
-#                     await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#             elif client_message == '/additem':
-#                 users[username]['state'] = 'addingitem'
-#                 text = 'شما در بخش افزودن محصول هستید،برای افزودن محصول کد آن را وارد کنید.'
-#                 text += 'برای خارج شدن از این بخش، کلمه خروج را ارسال کنید.'
-#                 async with aiohttp.ClientSession() as session:
-#                     await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#             elif client_message == '/removeitem':
-#                 users[username]['state'] = 'removingitem'
-#                 text = 'شما در بخش حذف محصول هستید،برای حذف محصول کد آن را وارد کنید.'
-#                 text += 'برای خارج شدن از این بخش، کلمه خروج را ارسال کنید.'
-#                 async with aiohttp.ClientSession() as session:
-#                     await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#             elif client_message == '/payment':
-#                 users[username]['state'] = 'confirmingpayment'
-#                 text = 'آیا از نهایی کردن سبد خرید خود، اطمینان دارید؟'
-#                 text += 'برای تایید بله و برای انصراف خیر را وارد کنید.'
-#                 async with aiohttp.ClientSession() as session:
-#                     await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#             # -------------from here Check states and proccess
-#             state = users[username]['state']
-#             if state == 'waitfordeleteaccount':
-#                 if client_message == 'بله':
-#                     delete_account(req, url)
-#                     text = 'حساب شما با موفقیت پاک شد.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                 elif client_message == 'خیر':
-#                     text = 'شما از حذف اکانت انصراف دادید.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     users[username]['state'] = ''
-#             elif state == 'addingitem':
-#                 item = add_item(username, client_message)
-#                 if client_message == 'خروج':
-#                     text = 'شما از بخش افزودن محصول، خارج شدید.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     users[username]['state'] = ''
-#                 elif not client_message == '/additem':
-#                     if item:
-#                         text = f"محصول {item['name']} اضافه شد.\n"
-#                         text += 'برای افزودن محصول دیگر کد دیگری وارد کنید یا برای خارج شدن ،خروج را ارسال کنید.'
-#                         async with aiohttp.ClientSession() as session:
-#                             await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     elif not item:
-#                         text = 'ورودی صحیح نیست، دوباره امتحان کنید.'
-#                         async with aiohttp.ClientSession() as session:
-#                             await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#             elif state == 'removingitem':
-#                 item = remove_item(username, client_message)
-#                 if client_message == 'خروج':
-#                     text = 'شما از بخش افزودن محصول، خارج شدید.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     users[username]['state'] = ''
-#                 elif not client_message == '/removeitem':
-#                     if item:
-#                         text = f"محصول {item['name']} حذف شد.\n"
-#                         text += 'برای حذف محصول دیگر کد دیگری وارد کنید یا برای خارج شدن ،خروج را ارسال کنید.'
-#                         async with aiohttp.ClientSession() as session:
-#                             await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     elif not item:
-#                         text = 'ورودی صحیح نیست، دوباره امتحان کنید.'
-#                         requests.post(f"{url}sendMessage?chat_id={user_id}&text={text}")
 #             elif state == 'confirmingpayment':
 #                 if client_message == 'بله':
 #                     text = 'سبد خرید ثبت شد.\n'
@@ -139,12 +38,6 @@ import aiohttp
 #                     text = 'شماره کارت اشتباه است، دوباره وارد کنید.'
 #                     async with aiohttp.ClientSession() as session:
 #                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-
-
-# loop.create_task(main(url))
-# if __name__ == '__main__':
-#     print("app is running now...")
-#     loop.run_forever()
 
 
 class Bot:
@@ -290,6 +183,7 @@ class Bot:
 class Main:
     TOKEN = '1330763196:AAH3HHUfzfU4MSufuSWnbEZIQiQ--jy0Oug'
     url = f"https://api.telegram.org/bot{TOKEN}/"
+    last_request = ''
 
     @staticmethod
     async def get_update(session, url):
@@ -312,14 +206,147 @@ class Main:
             async with aiohttp.ClientSession() as session:
                 return await self.get_update(session, url)
 
+    async def runing(self):
+        req = await self.requester(self.url)
+        instance = Bot.collector(req)
+        state = ''
+        if instance.message == '/signup':
+            instance.signup()
+            text = "ثبتنام شما با موفقیت انجام شد."
+            async with aiohttp.ClientSession() as session:
+                await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+        if not instance.check_user_in():
+            text = 'به ربات خوش آمدید برای استفاده از امکانات ربات ابتدا ثبتنام کنید.\n'
+            text += 'برای ثبتنام از دستور /signup استفاده کنید.\n'
+            text += 'در صورت عدم ثبتنام امکانات ربات برای شما فعال نخواهد شد.'
+            async with aiohttp.ClientSession() as session:
+                await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+        elif instance.check_user_in:
+            if instance.message == '/updateaccount':
+                instance.update()
+                text = "پروفایل شما با موفقیت بروزرسانی شد."
+                async with aiohttp.ClientSession() as session:
+                    await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            elif instance.message == '/deleteaccount':
+                Bot.users[instance.user_id]['state'] = 'waitfordeleteaccount'
+                text = 'آیا از حذف پروفایل خود اطمینان دارید؟'
+                async with aiohttp.ClientSession() as session:
+                    await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            elif instance.message == '/products':
+                    text = Bot.get_products()
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            elif instance.message == '/mycard':
+                text = instance.get_user_card()
+                async with aiohttp.ClientSession() as session:
+                    await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            elif instance.message == '/additem':
+                Bot.users[instance.user_id]['state'] = 'addingitem'
+                text = 'شما در بخش افزودن محصول هستید،برای افزودن محصول کد آن را وارد کنید.'
+                text += 'برای خارج شدن از این بخش، کلمه خروج را ارسال کنید.'
+                async with aiohttp.ClientSession() as session:
+                    await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            elif instance.message == '/removeitem':
+                Bot.users[instance.user_id]['state'] = 'removingitem'
+                text = 'شما در بخش حذف محصول هستید،برای حذف محصول کد آن را وارد کنید.'
+                text += 'برای خارج شدن از این بخش، کلمه خروج را ارسال کنید.'
+                async with aiohttp.ClientSession() as session:
+                    await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            elif instance.message == '/payment':
+                Bot.users[instance.user_id]['state'] = 'confirmingpayment'
+                text = 'آیا از نهایی کردن سبد خرید خود، اطمینان دارید؟'
+                text += 'برای تایید بله و برای انصراف خیر را وارد کنید.'
+                async with aiohttp.ClientSession() as session:
+                    await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            # -------------from here Check states and proccess
+            elif Bot.users[instance.user_id]['state'] == 'waitfordeleteaccount':
+                if instance.message == 'بله':
+                    text = 'حساب شما با موفقیت پاک شد.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    instance.delete_account()
+                elif instance.message == 'خیر':
+                    text = 'شما از حذف اکانت انصراف دادید.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    Bot.users[instance.user_id]['state'] = ''
+            elif Bot.users[instance.user_id]['state'] == 'addingitem':
+                item = instance.add_item()
+                if instance.message == 'خروج':
+                    text = 'شما از بخش افزودن محصول، خارج شدید.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    Bot.users[instance.user_id]['state'] = ''
+                elif not instance.message == '/additem':
+                    if item:
+                        text = f"محصول {item['name']} اضافه شد.\n"
+                        text += 'برای افزودن محصول دیگر کد دیگری وارد کنید یا برای خارج شدن ،خروج را ارسال کنید.'
+                        async with aiohttp.ClientSession() as session:
+                            await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    elif not item:
+                        text = 'ورودی صحیح نیست، دوباره امتحان کنید.'
+                        async with aiohttp.ClientSession() as session:
+                            await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            elif Bot.users[instance.user_id]['state'] == 'removingitem':
+                item = instance.remove_item()
+                if instance.message == 'خروج':
+                    text = 'شما از بخش افزودن محصول، خارج شدید.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    Bot.users[instance.user_id]['state'] = ''
+                elif not instance.message == '/removeitem':
+                    if item:
+                        text = f"محصول {item['name']} حذف شد.\n"
+                        text += 'برای حذف محصول دیگر کد دیگری وارد کنید یا برای خارج شدن ،خروج را ارسال کنید.'
+                        async with aiohttp.ClientSession() as session:
+                            await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    elif not item:
+                        text = 'ورودی صحیح نیست، دوباره امتحان کنید.'
+                        async with aiohttp.ClientSession() as session:
+                            await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+            elif Bot.users[instance.user_id]['state'] == 'confirmingpayment':
+                if instance.message == 'بله':
+                    text = 'سبد خرید ثبت شد.\n'
+                    price = instance.calc_price()
+                    text += f'your payment : {price}\n'
+                    text += 'آیا ادامه می دهید؟'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    Bot.users[instance.user_id]['state'] = 'nextlevelforpayment'
+                elif instance.message == 'خیر':
+                    text = 'شما از نهایی کردن سبد خرید ، خارج شدید.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    Bot.users[instance.user_id]['state'] = ''
+            elif Bot.users[instance.user_id]['state'] == 'nextlevelforpayment':
+                if instance.message == 'بله':
+                    text = 'شماره کارت خود را بدون فاصله ارسال کنید.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    Bot.users[instance.user_id]['state'] = 'finalpayment'
+                elif instance.message == 'خیر':
+                    text = 'شما از پرداخت سبد خرید ، خارج شدید.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    Bot.users[instance.user_id]['state'] = ''
+            elif Bot.users[instance.user_id]['state'] == 'finalpayment':
+                pay = instance.payment()
+                if pay:
+                    text = 'خرید شما با موفقیت انجام شد.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
+                    Bot.users[instance.user_id]['state'] = ''
+                    Bot.users[instance.user_id]['card'] = {}
+                if not pay:
+                    text = 'شماره کارت اشتباه است، دوباره وارد کنید.'
+                    async with aiohttp.ClientSession() as session:
+                        await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
 
-# sample request for test the code
-req = {"ok":True,"result":[{"update_id":643690482,
-"message":{"message_id":2714,"from":{"id":757770417,"is_bot":False,"first_name":"Ali","username":"backbone_area","language_code":"en"},"chat":{"id":757770417,"first_name":"Ali","username":"backbone_area","type":"private"},"date":1607176254,"text":"/mycard","entities":[{"offset":0,"length":7,"type":"bot_command"}]}}]}
-req = req['result'][-1]
-x = Bot.collector(req)
-print(x.signup())
-x.message = '1'
-print(x.delete_account())
 
-print(x.users)
+if __name__ == '__main__':
+    print("Bot is Running Now...")
+    loop = asyncio.get_event_loop()
+    while True:
+        x = Main()
+        loop.run_until_complete(x.runing())
+
