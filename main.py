@@ -27,6 +27,7 @@ products = {
     '7': {"name": "keyboard", "price": 7000}
 }
 
+
 # get new update
 async def get_update(session, url):
     url = f"{url}getUpdates"
