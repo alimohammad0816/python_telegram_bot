@@ -343,10 +343,13 @@ class Main:
                         await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
 
 
+async def run_bot():
+    x = Main()
+    while True:
+        task = asyncio.create_task(x.runing())
+        await task
+
 if __name__ == '__main__':
     print("Bot is Running Now...")
-    loop = asyncio.get_event_loop()
-    while True:
-        x = Main()
-        loop.run_until_complete(x.runing())
+    asyncio.run(run_bot())
 
