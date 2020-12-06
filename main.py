@@ -1,44 +1,6 @@
 import asyncio
 import aiohttp
 
-#             elif state == 'confirmingpayment':
-#                 if client_message == 'بله':
-#                     text = 'سبد خرید ثبت شد.\n'
-#                     price = calc_price(username)
-#                     text += f'your payment : {price}\n'
-#                     text += 'آیا ادامه می دهید؟'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     users[username]['state'] = 'nextlevelforpayment'
-#                 elif client_message == 'خیر':
-#                     text = 'شما از نهایی کردن سبد خرید ، خارج شدید.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     users[username]['state'] = ''
-#             elif state == 'nextlevelforpayment':
-#                 if client_message == 'بله':
-#                     text = 'شماره کارت خود را بدون فاصله ارسال کنید.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     users[username]['state'] = 'finalpayment'
-#                 elif client_message == 'خیر':
-#                     text = 'شما از پرداخت سبد خرید ، خارج شدید.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     users[username]['state'] = ''
-#             elif state == 'finalpayment':
-#                 pay = payment(client_message)
-#                 if pay:
-#                     text = 'خرید شما با موفقیت انجام شد.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-#                     users[username]['state'] = ''
-#                     users[username]['card'] = {}
-#                 if not pay:
-#                     text = 'شماره کارت اشتباه است، دوباره وارد کنید.'
-#                     async with aiohttp.ClientSession() as session:
-#                         await session.post(f'{url}sendMessage?chat_id={user_id}&text={text}')
-
 
 class Bot:
     users = {
