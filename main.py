@@ -2,33 +2,6 @@ import asyncio
 import requests
 import aiohttp
 
-
-# get new update
-async def get_update(session, url):
-    url = f"{url}getUpdates"
-    old_req = 0
-    req = 0
-    async with session.get(url) as resp:
-        old_req = await resp.json()
-    old_req = old_req["result"]
-    offset = old_req[-1]['update_id']
-    while True:
-        async with session.get(f'{url}?offset={offset}') as resp:
-            req = await resp.json()
-        req = req["result"][-1]
-        if not offset == req['update_id']:
-            return req
-
-
-loop = asyncio.get_event_loop()
-
-
-async def reqer(url):
-    while True:
-        async with aiohttp.ClientSession() as session:
-            return await get_update(session, url)
-
-
 # async def main(url):
 #         req = await reqer(url)
 #         loop.create_task(main(url))
@@ -175,8 +148,6 @@ async def reqer(url):
 
 
 class Bot:
-    TOKEN = '1330763196:AAH3HHUfzfU4MSufuSWnbEZIQiQ--jy0Oug'
-    url = f"https://api.telegram.org/bot{TOKEN}/"
     users = {
         # example user
         # 'user_id': {
@@ -252,7 +223,7 @@ class Bot:
             return False
 
     def delete_account(self):
-        if self.username in Bot.users:
+        if self.user_id in Bot.users:
             Bot.users.pop(self.user_id)
             return True
         else:
@@ -314,3 +285,41 @@ class Bot:
             return True
         else:
             return False
+
+
+class Main:
+    TOKEN = '1330763196:AAH3HHUfzfU4MSufuSWnbEZIQiQ--jy0Oug'
+    url = f"https://api.telegram.org/bot{TOKEN}/"
+
+    @staticmethod
+    async def get_update(session, url):
+        url = f"{url}getUpdates"
+        old_req = ''
+        req = ''
+        async with session.get(url) as resp:
+            old_req = await resp.json()
+        old_req = old_req["result"]
+        offset = old_req[-1]['update_id']
+        while True:
+            async with session.get(f'{url}?offset={offset}') as resp:
+                req = await resp.json()
+            req = req["result"][-1]
+            if not offset == req['update_id']:
+                return req
+
+    async def requester(self, url):
+        while True:
+            async with aiohttp.ClientSession() as session:
+                return await self.get_update(session, url)
+
+
+# sample request for test the code
+req = {"ok":True,"result":[{"update_id":643690482,
+"message":{"message_id":2714,"from":{"id":757770417,"is_bot":False,"first_name":"Ali","username":"backbone_area","language_code":"en"},"chat":{"id":757770417,"first_name":"Ali","username":"backbone_area","type":"private"},"date":1607176254,"text":"/mycard","entities":[{"offset":0,"length":7,"type":"bot_command"}]}}]}
+req = req['result'][-1]
+x = Bot.collector(req)
+print(x.signup())
+x.message = '1'
+print(x.delete_account())
+
+print(x.users)
