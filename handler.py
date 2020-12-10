@@ -1,8 +1,7 @@
-# import urllib.request as request
-from requests import get, post
-import json
 import asyncio
 import aiohttp
+from functools import wraps
+
 
 class Bot:
     def __init__(self, token):
@@ -26,14 +25,18 @@ class Bot:
         result = result.json()
         return await result
 
-    def handlers(self):
-        pass
+    @staticmethod
+    def command_handler(command):
+        def inner_decorator(func):
+            @wraps(func)
+            def wrapper(message):
+                if message.lower() == command.lower():
+                    return func
+                else:
+                    return "This Command is not Supported"
+            return wrapper
+        return inner_decorator
 
-    def add_handler(self):
-        pass
-
-    def remove_handler(self):
-        pass
 
 loop = asyncio.get_event_loop()
 
