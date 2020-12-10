@@ -17,17 +17,14 @@ class Bot:
     async def message_reciver(self):
         while True:
             async with aiohttp.ClientSession() as session:
-                await asyncio.sleep(1)
-                print('sended')
                 return await self.get_update(session)
 
     async def message_sender(self, chat_id, message_text):
         url = self.url.format(key=self.token, method="sendMessage")
-
         async with aiohttp.ClientSession() as session:
             result = await session.post(f'{url}?chat_id={chat_id}&text={message_text}')
         result = result.json()
-        return await asyncio.sleep(2), result
+        return await result
 
     def handlers(self):
         pass
