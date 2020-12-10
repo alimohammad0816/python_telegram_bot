@@ -14,9 +14,8 @@ class Bot:
         return result["result"][-1]
 
     async def message_reciver(self):
-        while True:
-            async with aiohttp.ClientSession() as session:
-                return await self.get_update(session)
+        async with aiohttp.ClientSession() as session:
+            return await self.get_update(session)
 
     async def message_sender(self, chat_id, message_text):
         url = self.url.format(key=self.token, method="sendMessage")
@@ -30,16 +29,10 @@ class Bot:
         def inner_decorator(func):
             @wraps(func)
             def wrapper(message):
+                print(message)
                 if message.lower() == command.lower():
-                    return func
+                    return func(message)
                 else:
                     return "This Command is not Supported"
             return wrapper
         return inner_decorator
-
-
-loop = asyncio.get_event_loop()
-
-
-if __name__ == '__main__':
-    t = Bot('1330763196:AAH3HHUfzfU4MSufuSWnbEZIQiQ--jy0Oug')

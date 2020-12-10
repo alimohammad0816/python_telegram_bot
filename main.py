@@ -1,5 +1,6 @@
 import asyncio
 import aiohttp
+from bot import Bot
 
 
 class Bot:
