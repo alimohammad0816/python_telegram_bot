@@ -60,7 +60,7 @@ class Main:
 
     @Bot.command_handler('/updateaccount')
     def update(self):
-        if self.username in Bot.users:
+        if self.username in self.users:
             simple = {
                 self.user_id: {
                     "username": self.username,
@@ -71,15 +71,15 @@ class Main:
                     "state": ""
                 }
             }
-            Bot.users.update(simple)
+            self.users.update(simple)
             return True
         else:
             return False
 
     @Bot.command_handler('/deleteaccount')
     def delete_account(self):
-        if self.user_id in Bot.users:
-            Bot.users.pop(self.user_id)
+        if self.user_id in self.users:
+            self.users.pop(self.user_id)
             return True
         else:
             return False
@@ -87,8 +87,8 @@ class Main:
     @Bot.command_handler('/procuts')
     def get_products(self):
         text = 'محصولات ما: \n'
-        for i in Bot.products:
-            text += f"نام محصول :{Bot.products[i]['name']}   ,  کدمحصول :{i}\n"
+        for i in self.products:
+            text += f"نام محصول :{self.products[i]['name']}   ,  کدمحصول :{i}\n"
         return text
 
     @Bot.command_handler('/mycard')
@@ -106,7 +106,7 @@ class Main:
     def add_item(self):
         try:
             item = {self.message: Bot.products[self.message]}
-            Bot.users[self.user_id]['card'].update(item)
+            self.users[self.user_id]['card'].update(item)
             return item[self.message]
         except KeyError:
             return False
@@ -115,14 +115,14 @@ class Main:
     def remove_item(self):
         try:
             item = {self.message: self.products[self.message]}
-            Bot.users[self.user_id]['card'].pop(self.message)
+            self.users[self.user_id]['card'].pop(self.message)
             return item[self.message]
         except KeyError:
             return False
 
     @Bot.command_handler('/calc_price')
     def calc_price(self):
-        if not Bot.users[self.user_id]['card'] == {}:
+        if not self.users[self.user_id]['card'] == {}:
             card = self.users[self.user_id]['card']
             price_sum = 0
             for i in card:
@@ -141,17 +141,18 @@ class Main:
             return False
 
     def check_user_in(self):
-        if self.user_id in Bot.users:
+        if self.user_id in self.users:
             return True
         else:
             return False
 
     def run(self):
-        x = self.signup()
-        print(x)
-        if x == True:
-            print('done')
-            # bot.message_sender(self.user_id, 'is Done!')
+            if self.signup():
+                text = "your Signup is Done!"
+                bot.message_sender(self.user_id, text)
+            elif self.update():
+                text = "your Signup is Done!"
+                bot.message_sender(self.user_id, text)
 # class Main:
 #     async def runing(self):
 #         req = await self.requester(self.url)

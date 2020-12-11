@@ -29,8 +29,5 @@ class Bot:
         return inner_decorator
 
 
-loop = asyncio.get_event_loop()
-
-
 if __name__ == '__main__':
     t = Bot('1330763196:AAH3HHUfzfU4MSufuSWnbEZIQiQ--jy0Oug')
