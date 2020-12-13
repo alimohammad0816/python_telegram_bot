@@ -39,6 +39,25 @@ def get_products(bot, req):
     bot.send_message(user_id, text)
 
 
+def signup(bot, req):
+    global users
+    user_id = bot.get_user_id(req)
+    username = bot.get_username(req)
+    first_name = bot.get_first_name(req)
+    last_name = bot.get_last_name(req)
+    simple = {
+        user_id: {
+            "user_id": user_id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "username": username
+        }}
+    users.update(simple)
+    text = "Your account Created successfuly!"
+    bot.send_message(user_id, text)
+
+
 bot.command_adder("/start", start)
 bot.command_adder("/products", get_products)
+bot.command_adder("/signup", signup)
 bot.run()
