@@ -26,7 +26,7 @@ bot = Bot('1330763196:AAFZYZy8u9FZCv1K2POYyPQt2IChxMvh-iQ')
 def start(bot, req):
     text = "Welcome,Register to use the bot features." \
            "For /Signup click on it."
-    user_id = req["user_id"]
+    user_id = bot.get_user_id(req)
     bot.send_message(user_id, text)
 
 
@@ -35,7 +35,7 @@ def get_products(bot, req):
     text = 'محصولات ما: \n'
     for i in products:
         text += f"نام محصول :{products[i]['name']}   ,  کدمحصول :{i}\n"
-    user_id = req["user_id"]
+    user_id = bot.get_user_id(req)
     bot.send_message(user_id, text)
 
 

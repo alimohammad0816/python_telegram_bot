@@ -39,32 +39,32 @@ class Bot:
         }
         return dict
 
-    @property
-    def get_message(self, req):
+    @staticmethod
+    def get_message(req):
         context = req['text']
         return context
 
-    @property
-    def get_username(self, req):
+    @staticmethod
+    def get_username(req):
         context = req["username"]
         return context
 
-    @property
-    def get_first_name(self, req):
+    @staticmethod
+    def get_first_name(req):
         context = req["first_name"]
         return context
 
-    @property
-    def get_last_name(self, req):
+    @staticmethod
+    def get_last_name(req):
         try:
             context = req["last_name"]
         except KeyError:
             context = "Unknown"
         return context
 
-    @property
-    def get_user_id(self, req):
-        context = req["last_name"]
+    @staticmethod
+    def get_user_id(req):
+        context = req["user_id"]
         return context
 
     def send_message(self, user_id, text):
