@@ -17,9 +17,10 @@ class Bot:
             request = request['result'][-1]
             return request
         else:
-            url = self.base_url.format(token=self.token, method='getUpdates')+f"offset={offset}"
+            url = self.base_url.format(token=self.token, method='getUpdates')+f"?offset={offset}"
             request = get(url)
             request = request.json()
+            print(request)
             request = request['result'][-1]
             return request
 
@@ -45,25 +46,25 @@ class Bot:
 
     @property
     def get_username(self, req):
-        context = message = req["username"]
+        context = req["username"]
         return context
 
     @property
     def get_first_name(self, req):
-        context = message = req["first_name"]
+        context = req["first_name"]
         return context
 
     @property
     def get_last_name(self, req):
         try:
-            context = message = req["last_name"]
+            context = req["last_name"]
         except KeyError:
             context = "Unknown"
         return context
 
     @property
     def get_user_id(self, req):
-        context = message = req["last_name"]
+        context = req["last_name"]
         return context
 
     def send_message(self, user_id, text):
@@ -73,15 +74,14 @@ class Bot:
         request = request['result']
         return request
 
-    def command_adder(self, command, func, *args, **kwargs):
-        self.commands.update({command: {"func": func, 'data': args}})
+    def command_adder(self, command, func):
+        self.commands.update({command: func})
 
     def command_handler(self, parser):
         command = parser['text']
         for i in self.commands:
             if i == command:
-                data = self.commands[i]['data']
-                self.commands[i]['func'](obj, req)
+                self.commands[i](self, parser)
 
     def run(self):
         req = self.get_last_update()
@@ -94,20 +94,5 @@ class Bot:
                 parser = self.parser(req)
                 self.command_handler(parser)
 
-
-a = Bot('1330763196:AAFZYZy8u9FZCv1K2POYyPQt2IChxMvh-iQ')
-
-
-def hello(name, age):
-    print(name)
-    # print(name2)
-
-
-a.command_adder('/start', hello, 'ali', 'mohammad')
-a.command_adder('/1', hello)
-a.command_adder('/2', hello)
-a.command_adder('/3', hello)
-a.command_adder('/4', hello)
-a.run()
 
 
