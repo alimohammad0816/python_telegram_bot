@@ -1,9 +1,11 @@
 import asyncio
 import aiohttp
 from bot import Bot
+from time import strftime, perf_counter
 
 
 class Main:
+    bot = Bot('1330763196:AAFZYZy8u9FZCv1K2POYyPQt2IChxMvh-iQ')
     users = {
         # example user
         # 'user_id': {
@@ -24,57 +26,50 @@ class Main:
         '6': {"name": "car", "price": 6000},
         '7': {"name": "keyboard", "price": 7000}
     }
+    user = bot.user
 
-    def __init__(self, req):
-        message = req['message']['text']
-        username = req['message']["from"]['username']
-        user_id = req['message']["from"]['id']
-        first_name = req['message']["from"]['first_name']
-        try:
-            last_name = req['message']["from"]['last_name']
-        except KeyError:
-            last_name = "نامشخص"
-        self.message = message
-        self.user_id = user_id
-        self.username = username
-        self.first_name = first_name
-        self.last_name = last_name
+    def __init__(self):
+
+        # user = self.bot.user
+        pass
 
     @Bot.command_handler('/signup')
     def signup(self):
-        if self.username not in self.users:
-            simple = {
-                self.user_id: {
-                    "username": self.username,
-                    "first_name": self.first_name,
-                    "last_name": self.last_name,
-                    "user_id": self.user_id,
-                    "card": {},
-                    "state": ""
+        for i in self.user:
+            if i not in self.users:
+                simple = {
+                    i: {
+                        "username": self.user[i]['username'],
+                        "first_name": self.user[i]['first_name'],
+                        "last_name": self.user[i]['last_name'],
+                        "user_id": i,
+                        "card": {},
+                        "state": ""
+                    }
                 }
-            }
-            self.users.update(simple)
-            return True
-        else:
-            return False
+                self.users.update(simple)
+                return True
+            else:
+                return False
 
     @Bot.command_handler('/updateaccount')
     def update(self):
-        if self.username in self.users:
-            simple = {
-                self.user_id: {
-                    "username": self.username,
-                    "first_name": self.first_name,
-                    "last_name": self.last_name,
-                    "user_id": self.user_id,
-                    "card": {},
-                    "state": ""
+        for i in self.user:
+            if i in self.users:
+                simple = {
+                    i: {
+                        "username": self.user[i]['username'],
+                        "first_name": self.user[i]['first_name'],
+                        "last_name": self.user[i]['last_name'],
+                        "user_id": i,
+                        "card": {},
+                        "state": ""
+                    }
                 }
-            }
-            self.users.update(simple)
-            return True
-        else:
-            return False
+                self.users.update(simple)
+                return True
+            else:
+                return False
 
     @Bot.command_handler('/deleteaccount')
     def delete_account(self):
@@ -147,12 +142,20 @@ class Main:
             return False
 
     def run(self):
+        while True:
+            for i in self.user:
+                user_id = self.user[i]['user_id']
+            x = perf_counter()
             if self.signup():
                 text = "your Signup is Done!"
-                bot.message_sender(self.user_id, text)
+                self.bot.message_sender(user_id, text)
             elif self.update():
-                text = "your Signup is Done!"
-                bot.message_sender(self.user_id, text)
+                y = perf_counter()
+                print(y - x)
+                text = "your update is Done!"
+                self.bot.message_sender(user_id, text)
+
+
 # class Main:
 #     async def runing(self):
 #         req = await self.requester(self.url)
@@ -291,6 +294,5 @@ class Main:
 #                         await session.post(f'{self.url}sendMessage?chat_id={instance.user_id}&text={text}')
 
 
-bot = Bot('1330763196:AAFZYZy8u9FZCv1K2POYyPQt2IChxMvh-iQ')
-a = Main(bot.get_update())
+a = Main()
 a.run()
